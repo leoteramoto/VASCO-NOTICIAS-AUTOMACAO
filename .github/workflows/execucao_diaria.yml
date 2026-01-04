@@ -1,19 +1,33 @@
 name: Automação Vasco Diária
+
 on:
   schedule:
-    - cron: '0 11 * * *' # Roda às 08:00 AM de Brasília
+    - cron: '0 11 * * *' 
   workflow_dispatch:
+
 jobs:
   run-scraper:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+
       - name: Instalar Dependências
         run: pip install -r requirements.txt
+
       - name: Rodar Script
         env:
+          # É aqui que o GitHub liga a sua URL secreta ao código Python
           URL_PLANILHA: ${{ secrets.URL_PLANILHA }}
         run: python main.py
+
+      # ESTA PARTE ABAIXO SALVA OS ARQUIVOS TXT PARA VOCÊ VER
+      - name: Salvar arquivos gerados
+        if: always() # Salva mesmo se der erro no envio da planilha
+        uses: actions/upload-artifact@v4
+        with:
+          name: noticias-coletadas
+          path: dados/ # Salva tudo o que estiver na pasta dados
